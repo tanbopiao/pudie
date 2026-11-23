@@ -1,4 +1,4 @@
-"""谱牒（PUDIE）算子骨架单测：名帖完整、桩位齐整、只增不覆盖。"""
+"""谱牒（PUDIE）算子单测：名帖完整、行为达标、只增不覆盖。"""
 import unittest
 
 from pudie import Pudie
@@ -15,13 +15,14 @@ class TestPudie(unittest.TestCase):
         self.assertTrue(d["anchor"].startswith("Ω₀⊂⊙∞⊂Ω"))
         self.assertTrue(d["mingwen"])
 
-    def test_classify_stub(self):
-        with self.assertRaises(NotImplementedError):
-            self.op.classify(None)
-
-    def test_lineage_stub(self):
-        with self.assertRaises(NotImplementedError):
-            self.op.lineage(None)
+    def test_classify_lineage(self):
+        self.op.classify({"id": "宗", "kind": "root", "parent": None})
+        self.op.classify({"id": "支", "kind": "branch", "parent": "宗"})
+        out = self.op.classify({"id": "叶", "kind": "leaf", "parent": "支"})
+        self.assertEqual(out["parent"], "支")
+        self.assertEqual(self.op.lineage("叶"), ["叶", "支", "宗"])
+        with self.assertRaises(KeyError):
+            self.op.lineage("无有")
 
 
 if __name__ == "__main__":
